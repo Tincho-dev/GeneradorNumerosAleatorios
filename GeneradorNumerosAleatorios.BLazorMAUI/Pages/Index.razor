@@ -1,146 +1,156 @@
 ﻿@page "/"
-@using NumerosAleatoriosIO.Services;
+@using NumerosAleatoriosIO.Services
 @inject IGeneradorService GeneradorService
 
 <h3>Generador de Números Aleatorios</h3>
 
-<div>
-    <label>Tipo de Método:</label>
-    <select @bind="metodoSeleccionado">
-        @foreach (var metodo in metodosDisponibles)
-        {
-            <option value="@metodo">@metodo</option>
-        }
-    </select>
+<div class="card">
+    <div class="card-body">
+        <label>Tipo de Método:</label>
+        <select class="form-control" @bind="metodoSeleccionado">
+            @foreach (var metodo in metodosDisponibles)
+            {
+                <option value="@metodo">@metodo</option>
+            }
+        </select>
+    </div>
 </div>
 
-@if (metodoSeleccionado == "ParteCentralDelCuadrado")
+@if (!string.IsNullOrEmpty(metodoSeleccionado))
 {
-    <div>
-        <label>Semilla:</label>
-        <input type="number" @bind="@semilla" />
-    </div>
-    <div>
-        <label>Dígitos Deseados:</label>
-        <input type="number" @bind="@digitosDeseados" />
-    </div>
-    <div>
-        <label>Total de Números a Generar:</label>
-        <input type="number" @bind="@totalDeNumerosGenerar" />
+    <div class="card mt-3">
+        <div class="card-body">
+            @if (metodoSeleccionado == "ParteCentralDelCuadrado")
+            {
+                <div>
+                    <label>Semilla:</label>
+                    <input type="number" class="form-control" @bind="@semilla" />
+                </div>
+                <div>
+                    <label>Dígitos Deseados:</label>
+                    <input type="number" class="form-control" @bind="@digitosDeseados" />
+                </div>
+                <div>
+                    <label>Total de Números a Generar:</label>
+                    <input type="number" class="form-control" @bind="@totalDeNumerosGenerar" />
+                </div>
+            }
+            else if (metodoSeleccionado == "Lehmer")
+            {
+                <div>
+                    <label>Semilla:</label>
+                    <input type="number" class="form-control" @bind="@semilla" />
+                </div>
+                <div>
+                    <label>Constante Multiplicativa:</label>
+                    <input type="number" class="form-control" @bind="@constanteMultiplicativa" />
+                </div>
+                <div>
+                    <label>Total de Números a Generar:</label>
+                    <input type="number" class="form-control" @bind="@totalDeNumerosGenerar" />
+                </div>
+            }
+            else if (metodoSeleccionado == "CongruencialMixto")
+            {
+                <div>
+                    <label>Semilla:</label>
+                    <input type="number" class="form-control" @bind="@semilla" />
+                </div>
+                <div>
+                    <label>Constante Aditiva:</label>
+                    <input type="number" class="form-control" @bind="@constanteAditiva" />
+                </div>
+                <div>
+                    <label>Constante Multiplicativa:</label>
+                    <input type="number" class="form-control" @bind="@constanteMultiplicativa" />
+                </div>
+                <div>
+                    <label>Módulo:</label>
+                    <input type="number" class="form-control" @bind="@modulo" />
+                </div>
+                <div>
+                    <label>Dígitos:</label>
+                    <input type="number" class="form-control" @bind="@digitos" />
+                </div>
+                <div>
+                    <label>Total de Números a Generar:</label>
+                    <input type="number" class="form-control" @bind="@totalDeNumerosGenerar" />
+                </div>
+            }
+            else if (metodoSeleccionado == "CongruencialMultiplicativo")
+            {
+                <div>
+                    <label>Semilla:</label>
+                    <input type="number" class="form-control" @bind="@semilla" />
+                </div>
+                <div>
+                    <label>Constante Multiplicativa:</label>
+                    <input type="number" class="form-control" @bind="@constanteMultiplicativa" />
+                </div>
+                <div>
+                    <label>Módulo:</label>
+                    <input type="number" class="form-control" @bind="@modulo" />
+                </div>
+                <div>
+                    <label>Total de Números a Generar:</label>
+                    <input type="number" class="form-control" @bind="@totalDeNumerosGenerar" />
+                </div>
+                <div>
+                    <label>Dígitos:</label>
+                    <input type="number" class="form-control" @bind="@digitos" />
+                </div>
+            }
+            else if (metodoSeleccionado == "CongruencialAditivo")
+            {
+                <div>
+                    <label>Lista de Semilla:</label>
+                    <input type="text" class="form-control" @bind="@listaSemillaString" />
+                    <small>Ejemplo: 1,2,3,4</small>
+                </div>
+                <div>
+                    <label>Módulo:</label>
+                    <input type="number" class="form-control" @bind="@modulo" />
+                </div>
+                <div>
+                    <label>Total de Números a Generar:</label>
+                    <input type="number" class="form-control" @bind="@totalDeNumerosGenerar" />
+                </div>
+                <div>
+                    <label>Dígitos:</label>
+                    <input type="number" class="form-control" @bind="@digitos" />
+                </div>
+            }
+        </div>
     </div>
 }
-else if (metodoSeleccionado == "Lehmer")
-{
-    <div>
-        <label>Semilla:</label>
-        <input type="number" @bind="@semilla" />
-    </div>
-    <div>
-        <label>Constante Multiplicativa:</label>
-        <input type="number" @bind="@constanteMultiplicativa" />
-    </div>
-    <div>
-        <label>Total de Números a Generar:</label>
-        <input type="number" @bind="@totalDeNumerosGenerar" />
-    </div>
-}
-else if (metodoSeleccionado == "CongruencialMixto")
-{
-    <div>
-        <label>Semilla:</label>
-        <input type="number" @bind="@semilla" />
-    </div>
-    <div>
-        <label>Constante Aditiva:</label>
-        <input type="number" @bind="@constanteAditiva" />
-    </div>
-    <div>
-        <label>Constante Multiplicativa:</label>
-        <input type="number" @bind="@constanteMultiplicativa" />
-    </div>
-    <div>
-        <label>Módulo:</label>
-        <input type="number" @bind="@modulo" />
-    </div>
-    <div>
-        <label>Dígitos:</label>
-        <input type="number" @bind="@digitos" />
-    </div>
-    <div>
-        <label>Total de Números a Generar:</label>
-        <input type="number" @bind="@totalDeNumerosGenerar" />
-    </div>
-}
-else if (metodoSeleccionado == "CongruencialMultiplicativo")
-{
-    <div>
-        <label>Semilla:</label>
-        <input type="number" @bind="@semilla" />
-    </div>
-    <div>
-        <label>Constante Multiplicativa:</label>
-        <input type="number" @bind="@constanteMultiplicativa" />
-    </div>
-    <div>
-        <label>Módulo:</label>
-        <input type="number" @bind="@modulo" />
-    </div>
-    <div>
-        <label>Total de Números a Generar:</label>
-        <input type="number" @bind="@totalDeNumerosGenerar" />
-    </div>
-    <div>
-        <label>Dígitos:</label>
-        <input type="number" @bind="@digitos" />
-    </div>
-}
-else if (metodoSeleccionado == "CongruencialAditivo")
-{
-    <div>
-        <label>Lista de Semilla:</label>
-        <input type="text" @bind="@listaSemillaString" />
-        <small>Ejemplo: 1,2,3,4</small>
-    </div>
-    <div>
-        <label>Módulo:</label>
-        <input type="number" @bind="@modulo" />
-    </div>
-    <div>
-        <label>Total de Números a Generar:</label>
-        <input type="number" @bind="@totalDeNumerosGenerar" />
-    </div>
-    <div>
-        <label>Dígitos:</label>
-        <input type="number" @bind="@digitos" />
-    </div>
-}
-
-<div>
-    <button @onclick="GenerarNumerosAleatorios">Generar Números Aleatorios</button>
+<div class="mt-3">
+    <button class="btn btn-primary" @onclick="GenerarNumerosAleatorios">Generar Números Aleatorios</button>
 </div>
 
 @if (numerosGenerados != null)
 {
-    <h4>Números Generados:</h4>
-    <table>
-        <thead>
-            <tr>
-                <th>Número</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var numero in numerosGenerados)
-            {
-                <tr>
-                    <td>@numero</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h4>Números Generados:</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var numero in numerosGenerados)
+                    {
+                        <tr>
+                            <td>@numero</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
-
 @code {
-    private string metodoSeleccionado;
     private int semilla;
     private int digitosDeseados;
     private int digitos;
@@ -160,6 +170,7 @@ else if (metodoSeleccionado == "CongruencialAditivo")
         "CongruencialMultiplicativo",
         "CongruencialAditivo"
     };
+    private string metodoSeleccionado;
 
     private void GenerarNumerosAleatorios()
     {
