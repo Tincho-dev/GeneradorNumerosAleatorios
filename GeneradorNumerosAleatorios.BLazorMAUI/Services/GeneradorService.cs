@@ -7,7 +7,7 @@
         public List<double> ParteCentralDelCuadrado(int digitosDeseados, int semilla, int totalDeNumerosaGenerar)
         {
             List<double> u = new List<double>();
-            for (int i = 1;i <= totalDeNumerosaGenerar;i++)
+            for (int i = 1; i <= totalDeNumerosaGenerar; i++)
             {
                 int x = semilla * semilla;
                 semilla = ((x.ToString().Length - digitosDeseados) % 2 == 0)
@@ -18,23 +18,23 @@
             return u;
         }
 
-        public List<double> Lehmer(int semilla, int constanteMultiplicativa,int totalDeNumerosaGenerar )
+        public List<double> Lehmer(int semilla, int constanteMultiplicativa, int totalDeNumerosaGenerar)
         {
             List<double> u = new List<double>();
+            var kDigitos = constanteMultiplicativa.ToString().Length;
             for (int i = 1; i <= totalDeNumerosaGenerar; i++)
             {
-			    var n = semilla * constanteMultiplicativa; 
-                var kDigitos = constanteMultiplicativa.ToString().Length;
+                var n = semilla * constanteMultiplicativa;
                 var new_t = n.ToString().Substring(0, kDigitos);
                 var corte = n.ToString().Substring(kDigitos);
-				semilla = Int32.Parse(corte) - Int32.Parse(new_t); 
-				u.Add(double.Parse("0," + semilla));
+                semilla = Int32.Parse(corte) - Int32.Parse(new_t);
+                if(semilla > 0 ) u.Add(double.Parse("0," + semilla));
             }
             return u;
         }
 
         public List<double> CongruencialMixto(int semilla, int constanteAditiva, int constanteMultiplicativa,
-            int modulo,int digitos, int totalDeNumerosaGenerar) 
+            int modulo, int digitos, int totalDeNumerosaGenerar)
         {
             List<double> u = new List<double>();
 
@@ -58,29 +58,29 @@
                 semilla = (semilla * constanteMultiplicativa) % modulo;
                 u.Add(
                     Math.Round(
-                        value: (double) semilla / modulo,
+                        value: (double)semilla / modulo,
                         digits: digitos,
                         mode: MidpointRounding.ToZero));
             }
             return u;
         }
 
-        public List<double> CongruencialAditivo(List<int> listaSemilla, int modulo, int totalDeNumerosaGenerar, int digitos )
+        public List<double> CongruencialAditivo(List<int> listaSemilla, int modulo, int totalDeNumerosaGenerar, int digitos)
         {
             List<double> u = new List<double>();
-            int techo = listaSemilla.Count-1;
+            int techo = listaSemilla.Count - 1;
             int semilla;
             int piso = 0;
             for (int i = 1; i <= totalDeNumerosaGenerar; i++)
             {
-                    semilla = (listaSemilla[piso] + listaSemilla[techo]) % modulo;
-                    techo++;
-                    piso++;
-                    listaSemilla.Add(semilla);
-                    u.Add(Math.Round(
-                        value: (double) semilla / modulo,
-                        digits: digitos,
-                        mode: MidpointRounding.ToZero));
+                semilla = (listaSemilla[piso] + listaSemilla[techo]) % modulo;
+                techo++;
+                piso++;
+                listaSemilla.Add(semilla);
+                u.Add(Math.Round(
+                    value: (double)semilla / modulo,
+                    digits: digitos,
+                    mode: MidpointRounding.ToZero));
             }
             return u;
         }

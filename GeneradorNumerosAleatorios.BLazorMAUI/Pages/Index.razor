@@ -1,0 +1,194 @@
+﻿@page "/"
+@using NumerosAleatoriosIO.Services;
+@inject IGeneradorService GeneradorService
+
+<h3>Generador de Números Aleatorios</h3>
+
+<div>
+    <label>Tipo de Método:</label>
+    <select @bind="metodoSeleccionado">
+        @foreach (var metodo in metodosDisponibles)
+        {
+            <option value="@metodo">@metodo</option>
+        }
+    </select>
+</div>
+
+@if (metodoSeleccionado == "ParteCentralDelCuadrado")
+{
+    <div>
+        <label>Semilla:</label>
+        <input type="number" @bind="@semilla" />
+    </div>
+    <div>
+        <label>Dígitos Deseados:</label>
+        <input type="number" @bind="@digitosDeseados" />
+    </div>
+    <div>
+        <label>Total de Números a Generar:</label>
+        <input type="number" @bind="@totalDeNumerosGenerar" />
+    </div>
+}
+else if (metodoSeleccionado == "Lehmer")
+{
+    <div>
+        <label>Semilla:</label>
+        <input type="number" @bind="@semilla" />
+    </div>
+    <div>
+        <label>Constante Multiplicativa:</label>
+        <input type="number" @bind="@constanteMultiplicativa" />
+    </div>
+    <div>
+        <label>Total de Números a Generar:</label>
+        <input type="number" @bind="@totalDeNumerosGenerar" />
+    </div>
+}
+else if (metodoSeleccionado == "CongruencialMixto")
+{
+    <div>
+        <label>Semilla:</label>
+        <input type="number" @bind="@semilla" />
+    </div>
+    <div>
+        <label>Constante Aditiva:</label>
+        <input type="number" @bind="@constanteAditiva" />
+    </div>
+    <div>
+        <label>Constante Multiplicativa:</label>
+        <input type="number" @bind="@constanteMultiplicativa" />
+    </div>
+    <div>
+        <label>Módulo:</label>
+        <input type="number" @bind="@modulo" />
+    </div>
+    <div>
+        <label>Dígitos:</label>
+        <input type="number" @bind="@digitos" />
+    </div>
+    <div>
+        <label>Total de Números a Generar:</label>
+        <input type="number" @bind="@totalDeNumerosGenerar" />
+    </div>
+}
+else if (metodoSeleccionado == "CongruencialMultiplicativo")
+{
+    <div>
+        <label>Semilla:</label>
+        <input type="number" @bind="@semilla" />
+    </div>
+    <div>
+        <label>Constante Multiplicativa:</label>
+        <input type="number" @bind="@constanteMultiplicativa" />
+    </div>
+    <div>
+        <label>Módulo:</label>
+        <input type="number" @bind="@modulo" />
+    </div>
+    <div>
+        <label>Total de Números a Generar:</label>
+        <input type="number" @bind="@totalDeNumerosGenerar" />
+    </div>
+    <div>
+        <label>Dígitos:</label>
+        <input type="number" @bind="@digitos" />
+    </div>
+}
+else if (metodoSeleccionado == "CongruencialAditivo")
+{
+    <div>
+        <label>Lista de Semilla:</label>
+        <input type="text" @bind="@listaSemillaString" />
+        <small>Ejemplo: 1,2,3,4</small>
+    </div>
+    <div>
+        <label>Módulo:</label>
+        <input type="number" @bind="@modulo" />
+    </div>
+    <div>
+        <label>Total de Números a Generar:</label>
+        <input type="number" @bind="@totalDeNumerosGenerar" />
+    </div>
+    <div>
+        <label>Dígitos:</label>
+        <input type="number" @bind="@digitos" />
+    </div>
+}
+
+<div>
+    <button @onclick="GenerarNumerosAleatorios">Generar Números Aleatorios</button>
+</div>
+
+@if (numerosGenerados != null)
+{
+    <h4>Números Generados:</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Número</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var numero in numerosGenerados)
+            {
+                <tr>
+                    <td>@numero</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private string metodoSeleccionado;
+    private int semilla;
+    private int digitosDeseados;
+    private int digitos;
+    private int constanteMultiplicativa;
+    private int constanteAditiva;
+    private int modulo;
+    private int totalDeNumerosGenerar;
+    private string listaSemillaString;
+
+    private List<double> numerosGenerados;
+
+    private List<string> metodosDisponibles = new List<string>
+    {
+        "ParteCentralDelCuadrado",
+        "Lehmer",
+        "CongruencialMixto",
+        "CongruencialMultiplicativo",
+        "CongruencialAditivo"
+    };
+
+    private void GenerarNumerosAleatorios()
+    {
+        numerosGenerados = metodoSeleccionado switch
+        {
+            "ParteCentralDelCuadrado" => GeneradorService.ParteCentralDelCuadrado(digitosDeseados, semilla, totalDeNumerosGenerar),
+            "Lehmer" => GeneradorService.Lehmer(semilla, constanteMultiplicativa, totalDeNumerosGenerar),
+            "CongruencialMixto" => GeneradorService.CongruencialMixto(semilla, constanteAditiva, constanteMultiplicativa, modulo, digitos, totalDeNumerosGenerar),
+            "CongruencialMultiplicativo" => GeneradorService.CongruencialMultiplicativo(semilla, constanteMultiplicativa, modulo, totalDeNumerosGenerar, digitos),
+            "CongruencialAditivo" => GeneradorService.CongruencialAditivo(ParseListaSemilla(listaSemillaString), modulo, totalDeNumerosGenerar, digitos),
+            _ => null
+        };
+    }
+
+
+    private List<int> ParseListaSemilla(string listaSemillaString)
+    {
+        List<int> listaSemilla = new List<int>();
+
+        string[] numeros = listaSemillaString.Split(',');
+
+        foreach (var numero in numeros)
+        {
+            if (int.TryParse(numero, out int parsedNumero))
+            {
+                listaSemilla.Add(parsedNumero);
+            }
+        }
+
+        return listaSemilla;
+    }
+}
