@@ -23,7 +23,7 @@ namespace GeneradorNumerosAleatorios.BLazorMAUI.Services
 
         public static bool Frecuencia(List<double> numeros, int cantidadDeIntervalos, double chiCuadrado)
         {
-            var limite = 1.0 / cantidadDeIntervalos;
+            var limite = 1f / cantidadDeIntervalos;
             var limiteRecorrido = limite;
             var frecuenciaEsperada = numeros.Count / cantidadDeIntervalos;
             List<int> frecuenciasObservadas = new List<int>(new int[cantidadDeIntervalos]); // Inicializar la lista con ceros
@@ -56,56 +56,125 @@ namespace GeneradorNumerosAleatorios.BLazorMAUI.Services
         }
 
 
-        public static bool serie(List<double> numeros, int X) {
-            var n = numeros.Count();
-            //var counter = 0;
-            int[,] matriz = new int[X,X];
-            InicializacionMatriz(matriz);
+		public static bool Serie(List<double> muestra, int x, double estadistico)
+		{
+			if (muestra.Count % 2 != 0) throw new Exception("La muestra no tiene longitud par.");
 
-			var fe = n / (Math.Pow(X,2)); // Frecuencia Esperada
-
-			foreach (int numero in numeros)
+			// Emparejamiento
+			List<Tuple<double, double>> pares = new List<Tuple<double, double>>();
+			for (int i = 0; i < muestra.Count; i += 2)
 			{
-                if (numero>=0.6) { 
-                
-                }
+				pares.Add(Tuple.Create(muestra[i], muestra[i + 1]));
 			}
 
+			double intervalo = 1.0 / x;
+			short[,] cuadrado = new short[x, x];
+			double fe = (double)pares.Count / (x * x);
+			Console.Write("Fe = {0}\n", fe);
 
-			for (int i = 0; i < 3; i++)
+			foreach (Tuple<double, double> p in pares)
 			{
-				for (int j = 0; j < 3; j++)
+				int fila = 0, columna = 0;
+				short numeroCelda = 0;
+				// No rompe el ciclo al encontrar la solucion, seria lento
+				// Posible de mejorar
+				for (double i = 0; i < 1; i += intervalo)
 				{
-					var sumatoria = Math.Pow((matriz[i, j] - fe),);
+					if (i <= p.Item1 && p.Item1 < i + intervalo)
+						fila = numeroCelda;
+					if (i <= p.Item2 && p.Item2 < i + intervalo)
+						columna = numeroCelda;
+					numeroCelda++;
+				}
+				cuadrado[fila, columna]++;
+			}
+
+			double sumatoria = 0;
+			foreach (double celda in cuadrado)
+			{
+				double resta = celda - fe;
+				sumatoria += (resta * resta);
+			}
+
+			double chiCuadrado = (x * x / (double)pares.Count) * sumatoria;
+			Console.Write("X^2 = {0}\n", chiCuadrado);
+
+			return chiCuadrado < estadistico;
+		}
+
+		public static bool Ks(List<double> muestra, double estadistico)
+		{
+			muestra.Sort();
+			// Calculo la distibucion y la diferencia de una sola vez:
+			double[] diferencias = new double[muestra.Count];
+			for (int i = 0; i < diferencias.Length; i++)
+			{
+				double distribucion = (double)(i + 1) / muestra.Count;
+				diferencias[i] = distribucion - muestra[i];
+			}
+			double Dn = diferencias.Max();
+			Console.WriteLine("Dn = {0}", Dn);
+			return Dn < estadistico;
+		}
+
+		public static bool CorridaArribaYCorridaMedia(List<double> muestras, double estadistico)
+		{
+			List<string> muestrasBinarias = muestras.Select(muestra => muestra <= 0.5 ? "0" : "1").ToList();
+			string cadenaBinaria = string.Join("", muestrasBinarias);
+
+			List<int> intervalos = new List<int>();
+			int contadorUnos = 0;
+			int contadorCeros = 0;
+			for (int i = 0; i < cadenaBinaria.Length; i++)
+			{
+				if (cadenaBinaria[i] == '1')
+				{
+					contadorUnos++;
+					if (i == cadenaBinaria.Length - 1 || cadenaBinaria[i] != cadenaBinaria[i + 1])
+					{
+						intervalos.Add(contadorUnos);
+						contadorUnos = 0;
+					}
+				}
+				else
+				{
+					contadorCeros++;
+					if (i == cadenaBinaria.Length - 1 || cadenaBinaria[i] != cadenaBinaria[i + 1])
+					{
+						intervalos.Add(contadorCeros);
+						contadorCeros = 0;
+					}
 				}
 			}
 
-
-			return true;
-
-        }
-
-        public static bool Serie() {
-            return true;
-        }
-        public static bool Ks() { 
-            return true;
-        }
-        public static bool CorridaArribaYCorridaMedia() { 
-            return true;
-        }
-
-
-
-        public static void InicializacionMatriz(int [,] matriz) {
-			// Inicializar la matriz con contadores en 0
-			for (int i = 0; i < 3; i++)
+			//Cálculo de Fo
+			List<int> fo = new List<int>();
+			int total = 0;
+			for (int i = 1; i <= intervalos.Max(); i++)
 			{
-				for (int j = 0; j < 3; j++)
-				{
-					matriz[i, j] = 0;
-				}
+				total = intervalos.Count(x => x == i);
+				fo.Add(total);
 			}
-        }
+
+			//Cálculo de Fe
+			int n = muestras.Count;
+			List<float> fe = new List<float>();
+			for (int i = 1; i <= intervalos.Max(); i++)
+			{
+				float feSubI = (n - i + 3) / (float)Math.Pow(2, i + 1);
+				fe.Add(feSubI);
+			}
+
+			//Cálculo de Chi
+			float chiCuadrado = 0;
+			for (int i = 0; i < fo.Count(); i++)
+			{
+				chiCuadrado += (fo[i] - fe[i]) * (fo[i] - fe[i]) / fe[i];
+			}
+
+			Console.Write("X^2 = {0}\n", chiCuadrado);
+			return chiCuadrado < estadistico;
+		}
+
     }
 }

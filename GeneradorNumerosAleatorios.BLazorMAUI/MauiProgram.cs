@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using GeneradorNumerosAleatorios.BLazorMAUI.Services;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using NumerosAleatoriosIO.Services;
 
 namespace GeneradorNumerosAleatorios.BLazorMAUI
@@ -17,10 +18,11 @@ namespace GeneradorNumerosAleatorios.BLazorMAUI
 
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
-            builder.Services.AddSingleton<IGeneradorService,GeneradorService>();
+            builder.Services.AddSingleton<IGeneradorService, GeneradorService>();
+            builder.Services.AddSingleton<IPruebasEstadisticasService, PruebasEstadisticasService>();
 
             return builder.Build();
         }
